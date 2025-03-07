@@ -170,7 +170,7 @@ elec_cost_yr_batt <- elec_use %>%
 head(elec_cost_yr_batt)
 ```
 
-Over the year, this would sum to £`{r} round(sum(elec_cost_yr_batt$intel_go_cost), 2)` on the Intelligent Go tariff. A further saving of £`{r} elec_cost_yr$intel_go_cost[1] - round(sum(elec_cost_yr_batt$intel_go_cost), 2).`
+Over the year, this would sum to £`{r} round(sum(elec_cost_yr_batt$intel_go_cost), 2)` on the Intelligent Go tariff. A further saving of £`{r} elec_cost_yr$intel_go_cost[1] - round(sum(elec_cost_yr_batt$intel_go_cost), 2)`.
 
 ## Discussion
 

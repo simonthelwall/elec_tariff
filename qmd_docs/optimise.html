@@ -113,7 +113,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The OctopusR package is available on <a href="https://cran.r-project.org/web/packages/octopusR/index.html">CRAN</a>, the code is on <a href="https://github.com/Moohan/octopusR/">GitHub</a> and there are nice github pages on the package <a href="https://moohan.github.io/octopusR/">here</a>.</p>
 <p>To access the API, you need the API key for your account, the MPAN numbers for your meters and the meter serial number. There’s documentation on the API on the <a href="https://developer.octopus.energy/">Octopus developer pages</a> and Guy Lipman has a <a href="https://www.guylipman.com/octopus/api_guide.html">nice write-up on his blog</a>.</p>
 <p>If you have PV, then you have two MPAN numbers, one for import from the grid and one for export. Octopus don’t tell you which is which, but the data make it obvious.</p>
-<p>I’m going to use the <code>get_consumption()</code> function to pull my consumption and export data into R and do some basic calculations with dplyr. With that data, and some transcribed data about tariff costs for my local area I should be able to find the best tariff for me.</p>
+<p>I’m going to use the <code>get_consumption()</code> function to pull my consumption and export data for the calendar year 2024 into R and do some basic calculations with dplyr. With that data, and some transcribed data about tariff costs for my local area I should be able to find the best tariff for me.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -142,7 +142,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 6 x 5
   consumption interval_start      interval_end         mnth    hr
         &lt;dbl&gt; &lt;dttm&gt;              &lt;dttm&gt;              &lt;dbl&gt; &lt;int&gt;
-1       1.23  2024-12-31 00:00:00 2024-12-31 00:30:00    12     0
+1       1.23  2024-12-31 00:00:00 2024-12-31 01:00:00    12     0
 2       0.237 2024-12-30 23:00:00 2024-12-31 00:00:00    12    23
 3       0.227 2024-12-30 22:00:00 2024-12-30 23:00:00    12    22
 4       0.347 2024-12-30 21:00:00 2024-12-30 22:00:00    12    21
@@ -164,7 +164,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code># A tibble: 6 x 5
   consumption interval_start      interval_end         mnth    hr
         &lt;dbl&gt; &lt;dttm&gt;              &lt;dttm&gt;              &lt;dbl&gt; &lt;int&gt;
-1           0 2024-12-31 00:00:00 2024-12-31 00:30:00    12     0
+1           0 2024-12-31 00:00:00 2024-12-31 01:00:00    12     0
 2           0 2024-12-30 23:00:00 2024-12-31 00:00:00    12    23
 3           0 2024-12-30 22:00:00 2024-12-30 23:00:00    12    22
 4           0 2024-12-30 21:00:00 2024-12-30 22:00:00    12    21
@@ -210,6 +210,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="results">Results</h2>
 <section id="consumption-costs-under-different-tariffs" class="level3">
 <h3 class="anchored" data-anchor-id="consumption-costs-under-different-tariffs">Consumption costs under different tariffs</h3>
+<p><em>Total cost (£) per calendar month, 2024</em></p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -240,7 +241,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>So, for January, I could have saved myself £39.48 if I had been on the Intelligent Go tariff, rather than the Flexible tariff.</p>
-<p>Over the year, these different costs sum to</p>
+<p>Over the year, these different costs sum to:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -265,6 +266,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="savings-by-altering-my-battery-plan">Savings by altering my battery plan</h3>
 <p>I’ve got a 10 kWh battery system. If I set that to charge on a cheap overnight tariff and then discharge it when that cheap overnight tariff runs out, how much will I save?</p>
 <p>I’m not quite sure how to calculate this, but if, per day, my kWh is &gt; 10, I can shift that 10 kWh to the night time load.</p>
+<p>So, below I’ve generated an altered consumption column where the load is 10 kWh lower if it’s in the peak period for Intelligent Go and 10 kWh higher in the off-peak period and then used these values to calculate the cost in £.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -304,13 +306,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 6           1 2024-~        3.71         0         1         13.7          0.960</code></pre>
 </div>
 </div>
-<p>Over the year, this would sum to £920.88. A further saving of £242.79</p>
+<p>Over the year, this would sum to £920.88 on the Intelligent Go tariff. A further saving of £242.79.</p>
 </section>
 </section>
 <section id="discussion" class="level2">
 <h2 class="anchored" data-anchor-id="discussion">Discussion</h2>
 <p>I can save myself £449.29, assuming that my energy use is similar in 2025 to my use in 2024. I did buy an EV in May 2024, so that may alter the total consumption, but it is only likely to tip it further in favour of Intelligent Go since I can schedule the EV charging for the cheap overnight rate. Scheduling consumption to early in the morning has the added advantage of less carbon-intensive too.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
-<p>One thing that I haven’t modelled here is the effect of charging the batteries at the off-peak rate in the summer. In those periods, I’m probably not going to exhaust the batteries before charging starts (unless the ashp is on a Legionella cycle or a hot-water cycle) and thus a, it won’t take the full 10 kWh from the grid to reach max charge and b, I’ll start exporting to the grid a lot earlier. This is beyond what I want to spend my spare time on but means that the savings presented here are likely to be slightly underestimate the actual savings slightly.</p>
+<p>One thing that I haven’t modelled here is the effect of charging the batteries at the off-peak rate in the summer. In those periods, I’m probably not going to exhaust the batteries before charging starts (unless the ashp is on a Legionella cycle or a hot-water cycle) and thus a, it won’t take the full 10 kWh from the grid to reach max charge and b, I’ll start exporting to the grid a lot earlier. This is beyond what I want to spend my spare time on but means that the savings presented here are likely to be slightly underestimate the actual savings.</p>
 <p>I love the fact that Octopus Energy have an API where I can check this sort of thing. I also love the fact that someone has been nerdy enough to write an R package to make it easy to interact with the API.</p>
 <p>I think my analyses here are accurate, but if you spot any errors please create an issue on the github repo.</p>
 </section>
